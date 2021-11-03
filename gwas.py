@@ -5,11 +5,8 @@ import os
 genotype_file = "mouse_hs1940.vcf.gz"
 phenotype_file = "mouse_hs1940.csv"
 
-# if already have input files
-if os.path.isdir('input'):
-    print("exists")
-# downloading source files (genotype and phenotype)
-else: 
+# downloading source files (genotype and phenotype) if not existent
+if not os.path.isdir('input'):
     genotype_file_url = "https://raw.githubusercontent.com/frankvogt/vcf2gwas/main/files/Comparison/dataset/mouse_hs1940.vcf.gz"
     genotype_file = wget.download(genotype_file_url)
 
