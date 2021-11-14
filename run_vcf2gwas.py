@@ -1,9 +1,7 @@
-import os
-import subprocess
-
 import wget
 import subprocess
 import os
+import re
 
 # When user doesn't input valid files, it runs a GWAS analysis on 
 # GEMMA's mouse1940 data
@@ -29,15 +27,30 @@ def run_mouse1940():
     subprocess.run(command.split())
 
 def main():
-    print("Please enter genotype file: ")
-    genotype = input()
-    print("Please enter phenotype file: ")
+    print("Please enter VFC file (.vcf or .vcf.gz): ")
+    vcf_file = input()
+
+    x = re.search(".vcf|.vcf.gz", vcf_file)
+    while x == None:
+        print("Invalid vcf file")
+        print("Please enter VFC file (.vcf or .vcf.gz): ")
+        vcf_file = input()
+        x = re.search(".vcf|.vcf.gz", vcf_file)
+    
+    print("Please enter phenotype file (.csv): ")
     phenotype = input()
-    print("Please enter command flags: ")
-    flags = input()
+
+    x = re.search(".csv", phenotype)
+    while x == None:
+        print("Invalid Phenotype file")
+        print("Please enter phenotype file (.csv): ")
+        phenotype = input()
+        x = re.search(".csv", phenotype)
+
+    
 
     try:
-        file_genotype = open(genotype)
+        file_genotype = open(vcf_file)
         file_phenotype = open(phenotype)
     except:
         print("One or more files cannot be found")
@@ -45,37 +58,101 @@ def main():
         run_mouse1940()
         return
 
-    command  = f"vcf2gwas -v {genotype} -pf {phenotype} {flags}"
-    subprocess.run(command.split())
+    #command  = f"vcf2gwas -v {genotype} -pf {phenotype} {flags}"
+    #subprocess.run(command.split())
 
-    GEMMA_Options()
+    complete = GEMMA_Options(vcf_file, phenotype)
+    if complete == 1:
+        print("\nvcf2gwas Analysis Complete!\n")
+    else:
+        print("\nUnable to Run vcf2gwas Analysis\n")
 
     return 1
 
-def GEMMA_Options():
+def GEMMA_Options(vcf_file, phenotype):
+    print()
     print("Here are the questions regarded about GEMMA models:")
     print("What model do you want to run?")
     print("     (1) Linear Model Analysis")
     print("     (2) Linear Mixed Model Analysis")
     print("     (3) Bayesian Sparse Linear Mixed Model Analysis")
-    print("Please enter 1, 2, or 3: ", end=" ")
+    print("     (4) Multivariate Linear Mixed Model Analysis")
+    print("Please enter 1, 2, 3, or 4: ", end=" ")
     model_type = input()
 
     if (model_type == "1"):
-        command = "-p 1 -lm"
-    elif (model_type == "2"):
-        # still need to fix what if only one phenotype is given
-        print("What phenotypes do you want to run?")
-        print("For example, if you want to run CD8 (1st column), MCH (2nd column), and avrRpm (4th column) phenotype independently," +
+        print("\nWhat phenotypes do you want to run?")
+        print("For example, if you want to run CD8 (1st column), MCH (2nd column), \nand avrRpm (4th column) phenotype independently," +
             "you can enter CD8 MCH avrRpm, or you can enter 1 2 4")
         print("Please enter name of phenotype(s) listed on your phenotype file or coloumn(s) of the phenotype(s): ", end=" ")
         number_of_phenotypes = input().split(" ")
         number_of_phenotypes = " -p ".join(number_of_phenotypes)
-        command = f"-p {number_of_phenotypes} -lmm --multi"
+
+        print("\nSpecify which Frequentist Test to use for Linear Model")
+        print("(1) wald test")
+        print("(2) likelihood ratio test")
+        print("(3) score test")
+        print("(4) all three tests")
+        test = input()
+        command = f"vcf2gwas -v {vcf_file} -pf {phenotype} -p {number_of_phenotypes} -lm {test}"
+        subprocess.run(command.split())
+        return 1
+    elif (model_type == "2"):
+        # still need to fix what if only one phenotype is given
+        print("\nWhat phenotypes do you want to run?")
+        print("For example, if you want to run CD8 (1st column), MCH (2nd column), \nand avrRpm (4th column) phenotype independently," +
+            "you can enter CD8 MCH avrRpm, or you can enter 1 2 4")
+        print("Please enter name of phenotype(s) listed on your phenotype file or coloumn(s) of the phenotype(s): ", end=" ")
+        number_of_phenotypes = input().split(" ")
+        number_of_phenotypes = " -p ".join(number_of_phenotypes)
+
+        print("\nSpecify which Frequentist Test to use for Linear Mixed Model")
+        print("(1) wald test")
+        print("(2) likelihood ratio test")
+        print("(3) score test")
+        print("(4) all three tests")
+        test = input()
+        command = f"vcf2gwas -v {vcf_file} -pf {phenotype} -p {number_of_phenotypes} -lmm {test}"
         print(command)
-    # elif (model_type == "3"):
+        subprocess.run(command.split())
+        return 1
+    elif (model_type == "3"):
+        print("\nWhat phenotypes do you want to run?")
+        print("For example, if you want to run CD8 (1st column), MCH (2nd column), \nand avrRpm (4th column) phenotype independently," +
+            "you can enter CD8 MCH avrRpm, or you can enter 1 2 4")
+        print("Please enter name of phenotype(s) listed on your phenotype file or coloumn(s) of the phenotype(s): ", end=" ")
+        number_of_phenotypes = input().split(" ")
+        number_of_phenotypes = " -p ".join(number_of_phenotypes)
+
+        print("\nSpecify which Frequentist Test to use for Bayesian Sparse Linear Mixed Model")
+        print("(1) wald test")
+        print("(2) likelihood ratio test")
+        print("(3) score test")
+        print("(4) all three tests")
+        test = input()
+        command = f"vcf2gwas -v {vcf_file} -pf {phenotype} -p {number_of_phenotypes} -bslmm {test}"
+        subprocess.run(command.split())
+        return 1
+    elif (model_type == "4"):
+        print("\nWhat phenotypes do you want to run?")
+        print("For example, if you want to run CD8 (1st column), MCH (2nd column), \nand avrRpm (4th column) phenotype independently," +
+            "you can enter CD8 MCH avrRpm, or you can enter 1 2 4")
+        print("Please enter name of phenotype(s) listed on your phenotype file or coloumn(s) of the phenotype(s): ", end=" ")
+        number_of_phenotypes = input().split(" ")
+        number_of_phenotypes = " -p ".join(number_of_phenotypes)
+
+        print("\nSpecify which Frequentist Test to use for Multivariate Linear Mixed Model")
+        print("(1) wald test")
+        print("(2) likelihood ratio test")
+        print("(3) score test")
+        print("(4) all three tests")
+        test = input()
+        command = f"vcf2gwas -v {vcf_file} -pf {phenotype} -p {number_of_phenotypes} -lmm {test} -m"
+        print(command)
+        subprocess.run(command.split())
+        return 1
         
-    return 1
+    return 0
 
 if __name__ == "__main__":
     main()
