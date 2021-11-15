@@ -30,22 +30,22 @@ def main():
     print("Please enter VFC file (.vcf or .vcf.gz): ")
     vcf_file = input()
 
-    x = re.search(".vcf|.vcf.gz", vcf_file)
+    x = re.search(".vcf$|.vcf.gz$", vcf_file)
     while x == None:
         print("Invalid vcf file")
         print("Please enter VFC file (.vcf or .vcf.gz): ")
         vcf_file = input()
-        x = re.search(".vcf|.vcf.gz", vcf_file)
+        x = re.search(".vcf$|.vcf.gz$", vcf_file)
     
     print("Please enter phenotype file (.csv): ")
     phenotype = input()
 
-    x = re.search(".csv", phenotype)
+    x = re.search(".csv$", phenotype)
     while x == None:
         print("Invalid Phenotype file")
         print("Please enter phenotype file (.csv): ")
         phenotype = input()
-        x = re.search(".csv", phenotype)
+        x = re.search(".csv$", phenotype)
 
     
 
