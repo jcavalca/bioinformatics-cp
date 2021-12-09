@@ -19,10 +19,14 @@ conda activate myenv
 ```
 conda install vcf2gwas -c conda-forge -c bioconda -c fvogt257
 ```  
+5. Next, install wget (for refactored vcf2gwas)
+```
+pip install wget
+```
 You are now ready to run vcf2gwas  
 
 
-# Running vcf2gwas
+# Running refactor vcf2gwas
 Follow the prompts after using the following command
 ```
 python3 run_vcf2gwas.py
